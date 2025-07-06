@@ -60,7 +60,7 @@ defmodule Hangman2.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
 
-      {:hangman, path: "../hangman"},
+      {:hangman, git: "https://github.com/tbattur22/hangman.git"},
     ]
   end
 
