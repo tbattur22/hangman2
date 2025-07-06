@@ -1,0 +1,25 @@
+<.flash_group flash={@flash} />
+<div class="flex justify-center items-center h-screen">
+  <div>
+    <div class="font-bold text-[150%] text-blue-900 m-4 p-4 text-center">Welcome to My Elixir Games!</div>
+    <%= if @current_user do %>
+      <div class="flex">
+        <div class="font-semibold text-[120%] text-purple-900 m-4 p-4">* Hangman Game</div>
+        <div class="m-2 p-2 flex justify-center items-center">
+          <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+            <a href="/hangman">Start</a>
+          </button>
+        </div>
+      </div>
+    <% else %>
+      <div class="text-center">
+        <.link
+          href={~p"/users/log_in"}
+          class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+        >
+          Log in to play
+        </.link>
+      </div>
+    <% end %>
+  </div>
+</div>
