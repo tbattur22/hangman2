@@ -23,3 +23,10 @@
     <% end %>
   </div>
 </div>
+
+<%= if assigns[:user_token] do %>
+  <script>
+  window.userToken = "<%= assigns[:user_token] %>"
+  window.userId = "<%= assigns[:user_id] %>"
+  </script>
+<% end %>

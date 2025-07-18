@@ -11,6 +11,7 @@ defmodule Hangman2Web.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :fetch_current_user
+    plug Hangman2Web.Plugs.MyPlug
   end
 
   pipeline :api do

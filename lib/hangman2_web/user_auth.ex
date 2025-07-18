@@ -32,6 +32,7 @@ defmodule Hangman2Web.UserAuth do
     conn
     |> renew_session()
     |> put_token_in_session(token)
+    |> assign(:user_token, token)
     |> maybe_write_remember_me_cookie(token, params)
     |> redirect(to: user_return_to || signed_in_path(conn))
   end
