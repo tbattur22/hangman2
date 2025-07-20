@@ -8,7 +8,7 @@ defmodule Hangman2Web.Plugs.MyPlug do
     options
   end
 
-  def call(conn, opts) do
+  def call(conn, _opts) do
     # Add user token to the connection if available
     if current_user = conn.assigns[:current_user] do
       token = Phoenix.Token.sign(conn, App.Constants.user_token_salt, current_user.id)

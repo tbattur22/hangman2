@@ -24,6 +24,7 @@ defmodule Hangman2Web.Router do
     get "/", PageController, :home
 
     live "/hangman", Live.Game
+    live "/connect_four", Live.ConnectFour.Game
   end
 
   # Other scopes may use custom stacks.

@@ -1,6 +1,6 @@
 defmodule Hangman2Web.GameChannel do
   use Hangman2Web, :channel
-  alias Logger
+  require Logger
 
   @impl true
   def join(

@@ -17,6 +17,7 @@ defmodule Hangman2.Application do
       # Start a worker by calling: Hangman2.Worker.start_link(arg)
       # {Hangman2.Worker, arg},
       # Start to serve requests, typically the last entry
+      Hangman2Web.Presence,
       Hangman2Web.Endpoint
     ]
 

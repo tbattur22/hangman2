@@ -26,7 +26,7 @@ defmodule Hangman2Web.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   @impl true
-  def connect(%{"token" => token} = _params, socket, connect_info) do
+  def connect(%{"token" => token} = _params, socket, _connect_info) do
     case Phoenix.Token.verify(Hangman2Web.Endpoint, App.Constants.user_token_salt, token, max_age: 86400) do
       {:ok, user_id} ->
         {:ok, assign(socket, :user_id, user_id)}

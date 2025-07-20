@@ -61,6 +61,7 @@ defmodule Hangman2.MixProject do
       {:bandit, "~> 1.5"},
 
       {:hangman, git: "https://github.com/tbattur22/hangman.git"},
+      {:connect_four, git: "https://github.com/tbattur22/connect_four.git"},
     ]
   end
 
