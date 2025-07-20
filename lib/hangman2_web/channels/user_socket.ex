@@ -36,6 +36,10 @@ defmodule Hangman2Web.UserSocket do
     end
   end
 
+  def connect(_params, socket, _connection_info) do
+    {:ok, socket}
+  end
+
   # Socket IDs are topics that allow you to identify all sockets for a given user:
   #
   #     def id(socket), do: "user_socket:#{socket.assigns.user_id}"

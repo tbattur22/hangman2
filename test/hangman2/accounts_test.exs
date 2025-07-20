@@ -54,7 +54,8 @@ defmodule Hangman2.AccountsTest do
 
       assert %{
                password: ["can't be blank"],
-               email: ["can't be blank"]
+               email: ["can't be blank"],
+               name: ["can't be blank"]
              } = errors_on(changeset)
     end
 
@@ -86,8 +87,10 @@ defmodule Hangman2.AccountsTest do
 
     test "registers users with a hashed password" do
       email = unique_user_email()
-      {:ok, user} = Accounts.register_user(valid_user_attributes(email: email))
+      name = valid_user_name()
+      {:ok, user} = Accounts.register_user(valid_user_attributes(email: email, name: name))
       assert user.email == email
+      assert user.name == name
       assert is_binary(user.hashed_password)
       assert is_nil(user.confirmed_at)
       assert is_nil(user.password)
@@ -97,21 +100,23 @@ defmodule Hangman2.AccountsTest do
   describe "change_user_registration/2" do
     test "returns a changeset" do
       assert %Ecto.Changeset{} = changeset = Accounts.change_user_registration(%User{})
-      assert changeset.required == [:password, :email]
+      assert changeset.required == [:password, :name, :email]
     end
 
     test "allows fields to be set" do
       email = unique_user_email()
+      name = valid_user_name()
       password = valid_user_password()
 
       changeset =
         Accounts.change_user_registration(
           %User{},
-          valid_user_attributes(email: email, password: password)
+          valid_user_attributes(email: email, name: name, password: password)
         )
 
       assert changeset.valid?
       assert get_change(changeset, :email) == email
+      assert get_change(changeset, :name) == name
       assert get_change(changeset, :password) == password
       assert is_nil(get_change(changeset, :hashed_password))
     end
@@ -123,6 +128,14 @@ defmodule Hangman2.AccountsTest do
       assert changeset.required == [:email]
     end
   end
+
+  describe "change_user_name/2" do
+    test "returns a user changeset" do
+      assert %Ecto.Changeset{} = changeset = Accounts.change_user_name(%User{})
+      assert changeset.required == [:name]
+    end
+  end
+
 
   describe "apply_user_email/3" do
     setup do

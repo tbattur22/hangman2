@@ -4,6 +4,7 @@ defmodule Hangman2.Accounts do
   """
 
   import Ecto.Query, warn: false
+  require Logger
   alias Hangman2.Repo
 
   alias Hangman2.Accounts.{User, UserToken, UserNotifier}
@@ -94,6 +95,28 @@ defmodule Hangman2.Accounts do
   end
 
   ## Settings
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for changing the user name.
+
+  ## Examples
+
+      iex> change_user_name(user)
+      %Ecto.Changeset{data: %User{}}
+
+  """
+
+  def change_user_name(user, attrs \\ %{}) do
+    User.name_changeset(user, attrs, validate_name: false)
+  end
+
+  def update_user_name(user, password, attrs) do
+    Logger.debug("update_user_name(): user: #{inspect(user)}, password: #{inspect(password)}, attrs #{inspect(attrs)}")
+    user
+    |> User.name_changeset(attrs)
+    |> User.validate_current_password(password)
+    |> Repo.update()
+  end
 
   @doc """
   Returns an `%Ecto.Changeset{}` for changing the user email.

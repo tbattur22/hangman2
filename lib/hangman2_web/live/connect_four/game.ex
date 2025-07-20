@@ -7,7 +7,6 @@ defmodule Hangman2Web.Live.ConnectFour.Game do
   alias Phoenix.Socket.Broadcast
 
   @presence_topic "game:lobby" # Define the topic
-  @presence_key "in_connectfour" # presence key to tack
   @game_invite_topic "game:invite"
   @game_invite_event "pending_invite"
 
@@ -23,20 +22,27 @@ def mount(_params, session, socket) do
     Logger.debug("ConnectFourGame:connectedSocket: assigns #{inspect(socket.assigns)}")
     Phoenix.PubSub.subscribe(PubSub, @presence_topic)
     Phoenix.PubSub.subscribe(PubSub, @game_invite_topic)
-    {:ok, _ref} = Presence.track(
-      self(),
-      @presence_topic,
-      to_string(socket.assigns.current_user.id),
-      %{user_id: socket.assigns.current_user.id, user_email: socket.assigns.current_user.email})
 
-    inConnectFourUsers = get_in_connectfour_users(socket.assigns.current_user)
+    socket =
+    if (socket.assigns.current_user) do
+      {:ok, _ref} = Presence.track(
+        self(),
+        @presence_topic,
+        to_string(socket.assigns.current_user.id),
+        %{user_id: socket.assigns.current_user.id, user_email: socket.assigns.current_user.email})
+
+      inConnectFourUsers = get_in_connectfour_users(socket.assigns.current_user)
+      assign(socket, %{inConnectFourUserCount: Enum.count(inConnectFourUsers), inConnectFourUsers: inConnectFourUsers})
+    else
+      socket
+    end
 
     # Assign the user_token and user_id if current_user is present
     socket =
       socket
       |> assign(:user_token, session["user_token"])
-      |> assign(:inConnectFourUserCount, Enum.count(inConnectFourUsers))
-      |> assign(:inConnectFourUsers, inConnectFourUsers)
+      # |> assign(:inConnectFourUserCount, Enum.count(inConnectFourUsers))
+      # |> assign(:inConnectFourUsers, inConnectFourUsers)
       |> assign(%{pending_invite: nil})
       |> maybe_assign_user_id()
 
@@ -190,12 +196,6 @@ end
       |> Enum.flat_map(fn {_key, %{metas: metas}} -> metas end)
       |> Enum.filter(fn meta -> meta.user_id != current_user.id end)
       |> Enum.uniq_by(& &1.user_id)
-          # %{@presence_key => %{metas: list}} ->
-      #   # Logger.debug("ConnectFour Game Users List #{inspect(list)}")
-      #   list
-      #   |> Enum.filter(fn u -> u.user_id != current_user.id end)
-      #   |> Enum.uniq()
-      # _other -> []
   end
 
 

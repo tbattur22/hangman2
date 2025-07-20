@@ -22,7 +22,7 @@ defmodule Hangman2Web.UserSettingsLive do
           <.input
             field={@name_form[:current_password]}
             name="current_password"
-            id="current_password_for_email"
+            id="current_password_for_name"
             type="password"
             label="Current password"
             value={@name_form_current_password}
@@ -120,6 +120,7 @@ defmodule Hangman2Web.UserSettingsLive do
       |> assign(:email_form_current_password, nil)
       |> assign(:name_form_current_password, nil)
       |> assign(:current_email, user.email)
+      |> assign(:current_name, user.name)
       |> assign(:email_form, to_form(email_changeset))
       |> assign(:name_form, to_form(name_changeset))
       |> assign(:password_form, to_form(password_changeset))
@@ -140,6 +141,19 @@ defmodule Hangman2Web.UserSettingsLive do
     {:noreply, assign(socket, email_form: email_form, email_form_current_password: password)}
   end
 
+  def handle_event("validate_name", params, socket) do
+    %{"current_password" => password, "user" => user_params} = params
+
+    name_form =
+      socket.assigns.current_user
+      |> Accounts.change_user_name(user_params)
+      |> Map.put(:action, :validate)
+      |> to_form()
+
+    {:noreply, assign(socket, name_form: name_form, name_form_current_password: password)}
+  end
+
+
   def handle_event("update_email", params, socket) do
     %{"current_password" => password, "user" => user_params} = params
     user = socket.assigns.current_user
@@ -157,6 +171,24 @@ defmodule Hangman2Web.UserSettingsLive do
 
       {:error, changeset} ->
         {:noreply, assign(socket, :email_form, to_form(Map.put(changeset, :action, :insert)))}
+    end
+  end
+
+  def handle_event("update_name", params, socket) do
+    %{"current_password" => password, "user" => user_params} = params
+    user = socket.assigns.current_user
+
+    case Accounts.update_user_name(user, password, user_params) do
+      {:ok, user} ->
+        name_form =
+          user
+          |> Accounts.change_user_name(user_params)
+          |> to_form()
+
+        {:noreply, assign(socket, trigger_submit: true, name_form: name_form)}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, :name_form, to_form(Map.put(changeset, :action, :insert)))}
     end
   end
 

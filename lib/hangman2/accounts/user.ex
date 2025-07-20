@@ -4,6 +4,7 @@ defmodule Hangman2.Accounts.User do
 
   schema "users" do
     field :email, :string
+    field :name, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
@@ -37,8 +38,9 @@ defmodule Hangman2.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :name, :password])
     |> validate_email(opts)
+    |> validate_name()
     |> validate_password(opts)
   end
 
@@ -59,6 +61,12 @@ defmodule Hangman2.Accounts.User do
     # |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
     # |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/, message: "at least one digit or punctuation character")
     |> maybe_hash_password(opts)
+  end
+
+  defp validate_name(changeset) do
+    changeset
+    |> validate_required([:name])
+    |> validate_length(:name, min: 2, max: 100)
   end
 
   defp maybe_hash_password(changeset, opts) do
@@ -100,6 +108,21 @@ defmodule Hangman2.Accounts.User do
     |> case do
       %{changes: %{email: _}} = changeset -> changeset
       %{} = changeset -> add_error(changeset, :email, "did not change")
+    end
+  end
+
+  @doc """
+  A user changeset for changing the name.
+
+  It requires the name to change otherwise an error is added.
+  """
+  def name_changeset(user, attrs, _opts \\ []) do
+    user
+    |> cast(attrs, [:name])
+    |> validate_name()
+    |> case do
+      %{changes: %{name: _}} = changeset -> changeset
+      %{} = changeset -> add_error(changeset, :name, "did not change")
     end
   end
 
