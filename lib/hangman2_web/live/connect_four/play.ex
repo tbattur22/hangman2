@@ -57,95 +57,107 @@ alias Hangman2Web.Live.ConnectFour.Invites
     end
   end
 
+  @impl true
   def render(%{current_user: current_user, game: game, board: _board} = assigns) do
-    Logger.debug("Play:render with board: assigns #{inspect(assigns)}")
     can_move? = current_user.id == ConnectFour.Impl.Game.get_uid_by_player(game.players, game.current_player)
-
     assigns = Map.put(assigns, :can_move?, can_move?)
 
     ~H"""
-      <%= if match?({:win, _}, @game.game_state) do %>
-        <% {:win, winner} = @game.game_state %>
-        <div class="game-result" style="margin-bottom: 12px; font-weight: bold;">
-          <%= if winner == :red and @red_player.id == @current_user.id do %>
-            🏆 You (Red) won!
-          <% else %>
-            <%= if winner == :yellow and @yellow_player.id == @current_user.id do %>
-              🏆 You (Yellow) won!
+      <div class="space-y-6 max-w-2xl mx-auto p-4">
+
+        <%= if match?({:win, _}, @game.game_state) do %>
+          <% {:win, winner} = @game.game_state %>
+          <div class="text-xl font-semibold text-center text-green-700 bg-green-100 p-3 rounded shadow">
+            <%= if winner == :red and @red_player.id == @current_user.id do %>
+              🏆 You (Red) won!
             <% else %>
-              💥 <%= String.capitalize(to_string(winner)) %> wins!
-            <% end %>
-          <% end %>
-        </div>
-      <% else %>
-        <%= if @game.game_state == :draw do %>
-          <div class="game-result" style="margin-bottom: 12px; font-weight: bold;">
-            🤝 It's a draw!
-          </div>
-        <% end %>
-      <% end %>
-
-      <%= if @game_over do %>
-        <div style="margin-top: 16px;">
-          <button phx-click="restart_game" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">🔄 Restart Game</button>
-          <button phx-click="exit_game" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" style="margin-left: 8px;">🚪 Exit</button>
-        </div>
-      <% end %>
-
-
-      <div class="players-info" style="margin-bottom: 16px;">
-        <p><strong>🔴 Red:</strong> <%= @red_player.name %></p>
-        <p><strong>🟡 Yellow:</strong> <%= @yellow_player.name %></p>
-
-        <%= if !@game_over do %>
-          <%= if @game.current_player == :red do %>
-            <%= if @red_player.id == @current_user.id do %>
-              <p>It is your turn to drop 🔴</p>
-            <% else %>
-              <%= if @yellow_player.id == @current_user.id do %>
-                <p>It is <%= @red_player.name %>'s turn to drop 🔴</p>
-              <% else  %>
-                <p>It is your turn to drop 🟡</p>
-              <% end %>
-            <% end %>
-          <% else %>
-            <%= if @yellow_player.id == @current_user.id do %>
-              <p>It is your turn to drop 🟡</p>
-            <% else %>
-              <%= if @red_player.id == @current_user.id do %>
-                <p>It is <%= @yellow_player.name %>'s turn to drop 🟡</p>
+              <%= if winner == :yellow and @yellow_player.id == @current_user.id do %>
+                🏆 You (Yellow) won!
               <% else %>
-                <p>It is your turn to drop 🔴</p>
+                💥 <%= String.capitalize(to_string(winner)) %> wins!
               <% end %>
             <% end %>
-          <% end %>
-        <% end %>
-      </div>
-
-      <div class="connect-four-board" style="display: grid; grid-template-rows: repeat(6, 50px); grid-template-columns: repeat(7, 50px); gap: 4px;">
-        <%= for row_index <- Enum.reverse(0..5) do %> <!-- From bottom row to top -->
-          <%= for col_index <- 0..6 do %>
-            <% cell = Enum.at(Enum.at(@board, col_index), row_index) %>
-            <% is_top_cell = row_index == 5 %>
-            <% is_clickable = row_index == 5 and @can_move? %>
-            <% style = "width: 50px; height: 50px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; background-color: white;" <> if is_clickable, do: " cursor: pointer;", else: "" %>
-            <div
-              class="cell"
-              style={style}
-              title={if is_top_cell and is_clickable, do: "Click to drop"}
-              {if is_clickable, do: ["phx-click": "drop_piece", "phx-value-col": col_index], else: []}
-            >
-              <%= case cell do %>
-                  <% :red -> %>
-                    <div style="width: 80%; height: 80%; background-color: red; border-radius: 50%;"></div>
-                  <% :yellow -> %>
-                    <div style="width: 80%; height: 80%; background-color: yellow; border-radius: 50%;"></div>
-                  <% nil -> %>
-                    <div style="width: 80%; height: 80%; background-color: lightgray; border-radius: 50%;"></div>
-                <% end %>
+          </div>
+        <% else %>
+          <%= if @game.game_state == :draw do %>
+            <div class="text-xl font-semibold text-center text-yellow-800 bg-yellow-100 p-3 rounded shadow">
+              🤝 It's a draw!
             </div>
           <% end %>
         <% end %>
+
+        <%= if @game_over do %>
+          <div class="flex justify-center gap-4 mt-4">
+            <button
+              phx-click="restart_game"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow transition">
+              🔄 Restart Game
+            </button>
+            <button
+              phx-click="exit_game"
+              class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded shadow transition">
+              🚪 Exit
+            </button>
+          </div>
+        <% end %>
+
+        <div class="bg-white rounded shadow p-4">
+          <p class="text-lg"><strong>🔴 Red:</strong> <%= @red_player.name %></p>
+          <p class="text-lg"><strong>🟡 Yellow:</strong> <%= @yellow_player.name %></p>
+
+          <%= if !@game_over do %>
+            <div class="mt-2 text-sm text-gray-700 italic">
+              <%= cond do %>
+                <% @game.current_player == :red and @red_player.id == @current_user.id -> %>
+                  It is your turn to drop 🔴
+                <% @game.current_player == :red -> %>
+                  It is <%= @red_player.name %>'s turn to drop 🔴
+                <% @game.current_player == :yellow and @yellow_player.id == @current_user.id -> %>
+                  It is your turn to drop 🟡
+                <% @game.current_player == :yellow -> %>
+                  It is <%= @yellow_player.name %>'s turn to drop 🟡
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <p class="text-center text-gray-600 text-sm mb-2">Click a top cell to drop your piece</p>
+
+        <div class="w-full max-w-lg mx-auto p-4 space-y-6">
+          <div
+            class="grid grid-cols-7 gap-1 mb-1 text-center text-sm text-gray-600"
+            style="aspect-ratio: 7 / 6;">
+
+            <%= for row_index <- Enum.reverse(0..5) do %>
+              <%= for col_index <- 0..6 do %>
+
+                <% cell = Enum.at(Enum.at(@board, col_index), row_index) %>
+                  <% is_top_row = row_index == 5 %>
+                  <% is_clickable = is_top_row and @can_move? %>
+                  <% drop_hint_class = if is_clickable, do: "hover:ring-2 hover:ring-blue-400 hover:bg-blue-100 cursor-pointer", else: "" %>
+
+                  <div
+                    class={"flex items-center justify-center rounded-full border border-gray-300 bg-white relative #{drop_hint_class}"}
+                    style="aspect-ratio: 1 / 1;"
+                    title={if is_clickable, do: "Click here to drop your piece"}
+                    {if is_clickable, do: ["phx-click": "drop_piece", "phx-value-col": col_index], else: []}
+                  >
+                    <!-- Inside: render piece or empty -->
+                    <%= case cell do %>
+                      <% :red -> %>
+                        <div class="w-[80%] h-[80%] bg-red-500 rounded-full drop-animation"></div>
+                      <% :yellow -> %>
+                        <div class="w-[80%] h-[80%] bg-yellow-400 rounded-full drop-animation"></div>
+                      <% nil -> %>
+                        <div class="w-[80%] h-[80%] bg-gray-200 rounded-full"></div>
+                    <% end %>
+                  </div>
+              <% end %>
+            <% end %>
+
+          </div>
+        </div>
+
       </div>
     """
   end

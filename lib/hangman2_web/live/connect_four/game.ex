@@ -174,26 +174,23 @@ end
   end
 
 
-  @impl true
-  def render(%{available_users: _available_users} = assigns) do
-    Logger.debug("Live.ConnectFour.Game:render: Render for current_user: #{assigns.current_user.id},
-    \n assigns #{inspect(assigns)} and
-    \n --available_users #{inspect(assigns.available_users)}
-    \n --Invites #{inspect(Invites.get_state())}")
-    ~H"""
-    <div class="max-w-xl mx-auto mt-8 space-y-6">
-      <h1 class="text-2xl font-bold text-center">Connect Four Lobby</h1>
-      <div>
-        <h2 class="text-xl font-bold">Available Users:</h2>
-      </div>
+@impl true
+def render(%{available_users: _available_users} = assigns) do
+  ~H"""
+  <div class="max-w-xl mx-auto mt-8 space-y-6">
+    <h1 class="text-3xl font-bold text-center text-blue-800">Connect Four Lobby</h1>
 
-      <%= if !@waitingForInvitee and !@inviterWaitingForMe and !Enum.empty?(@available_users) do %>
+    <div>
+      <h2 class="text-xl font-semibold text-gray-700">Available Users</h2>
+    </div>
+
+    <%= if Enum.any?(@available_users) and !@waitingForInvitee and !@inviterWaitingForMe do %>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <%= for user <- @available_users do %>
-          <div class="p-4 border rounded flex items-center justify-between shadow-sm">
-            <div><%= user.name %></div>
+          <div class="p-4 border rounded-lg flex items-center justify-between shadow-md bg-white">
+            <span class="text-gray-800 font-medium"><%= user.name %></span>
             <button
-              class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm"
+              class="bg-green-500 hover:bg-green-600 text-white font-semibold text-sm px-4 py-2 rounded transition"
               phx-click="invite"
               phx-value-user={Jason.encode!(user)}>
               Invite
@@ -201,42 +198,44 @@ end
           </div>
         <% end %>
       </div>
-      <% end %>
+    <% end %>
 
-      <%= if @waitingForInvitee do %>
-        <div class="mt-4 text-yellow-800 bg-yellow-100 border border-yellow-400 p-3 rounded">
-          Waiting for <strong><%= @waitingForInvitee.name %></strong> to accept the game...
-        </div>
-        <div>
-          <button
-            class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm"
-            phx-click="cancel_invite"
-            phx-value-user="">
-            Cancel the Invite
-          </button>
-        </div>
-      <% end %>
+    <%= if @waitingForInvitee do %>
+      <div class="mt-6 p-4 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg">
+        Waiting for <strong><%= @waitingForInvitee.name %></strong> to accept the game...
+      </div>
+      <div class="mt-2">
+        <button
+          class="bg-red-500 hover:bg-red-600 text-white font-medium text-sm px-4 py-2 rounded transition"
+          phx-click="cancel_invite"
+          phx-value-user="">
+          Cancel Invite
+        </button>
+      </div>
+    <% end %>
 
-      <%= if @inviterWaitingForMe do %>
-        <div class="p-4 border rounded flex items-center justify-between shadow-sm">
-          <div><%= @inviterWaitingForMe.name %></div>
+    <%= if @inviterWaitingForMe do %>
+      <div class="p-4 border rounded-lg flex flex-col gap-2 items-start shadow-md bg-white mt-6">
+        <span class="text-gray-800 font-medium"><%= @inviterWaitingForMe.name %></span>
+        <div class="flex gap-2">
           <button
-            class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm"
+            class="bg-green-500 hover:bg-green-600 text-white font-medium text-sm px-4 py-2 rounded transition"
             phx-click="accept_invite"
             phx-value-inviter={Jason.encode!(@inviterWaitingForMe)}>
             Accept Invite
           </button>
           <button
-            class="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 text-sm"
+            class="bg-orange-500 hover:bg-orange-600 text-white font-medium text-sm px-4 py-2 rounded transition"
             phx-click="reject_invite"
             phx-value-user="">
-            Reject the Invite
+            Reject Invite
           </button>
         </div>
-      <% end %>
-    </div>
-    """
-  end
+      </div>
+    <% end %>
+  </div>
+  """
+end
 
 
   @doc """

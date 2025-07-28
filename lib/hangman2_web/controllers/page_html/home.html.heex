@@ -1,29 +1,36 @@
 <.flash_group flash={@flash} />
-<div class="flex justify-center items-center h-screen">
-  <div>
-    <div class="font-bold text-[150%] text-blue-900 m-4 p-4 text-center">Welcome to My Elixir Games!</div>
+
+<div class="flex justify-center items-center min-h-screen">
+  <div class="w-full max-w-2xl p-4">
+    <h1 class="text-center text-blue-900 text-2xl font-bold mb-8">Welcome to My Elixir Games!</h1>
+
     <%= if @current_user do %>
-      <div class="flex">
-        <div class="font-semibold text-[120%] text-purple-900 m-4 p-4">* Hangman Game</div>
-        <div class="m-2 p-2 flex justify-center items-center">
-          <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-            <a href="/hangman">Start</a>
-          </button>
-        </div>
-      </div>
-      <div class="flex">
-        <div class="font-semibold text-[120%] text-purple-900 m-4 p-4">* Connect Four Game</div>
-        <div class="m-2 p-2 flex justify-center items-center">
-          <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-            <a href="/connect_four">Go to play</a>
-          </button>
-        </div>
+      <div class="space-y-6">
+        <section class="flex items-center justify-between border p-4 rounded shadow">
+          <h2 class="text-purple-900 font-semibold text-lg">🎯 Hangman Game</h2>
+          <.link
+            navigate="/hangman"
+            class="inline-block px-5 py-2.5 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            Start
+          </.link>
+        </section>
+
+        <section class="flex items-center justify-between border p-4 rounded shadow">
+          <h2 class="text-purple-900 font-semibold text-lg">🟡 Connect Four Game</h2>
+          <.link
+            navigate="/connect_four"
+            class="inline-block px-5 py-2.5 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            Go to Play
+          </.link>
+        </section>
       </div>
     <% else %>
-      <div class="text-center">
+      <div class="text-center mt-8">
         <.link
           href={~p"/users/log_in"}
-          class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+          class="text-base font-semibold text-zinc-900 hover:text-zinc-700"
         >
           Log in to play
         </.link>
@@ -34,7 +41,7 @@
 
 <%= if assigns[:user_token] do %>
   <script>
-  window.userToken = "<%= assigns[:user_token] %>"
-  window.userId = "<%= assigns[:user_id] %>"
+    window.userToken = "<%= assigns[:user_token] %>";
+    window.userId = "<%= assigns[:user_id] %>";
   </script>
 <% end %>

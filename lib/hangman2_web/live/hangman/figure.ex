@@ -9,7 +9,7 @@ defmodule Hangman2Web.Live.Game.Figure do
         	 width="250px" height="350px" viewBox="0 0 250 350" enable-background="new 0 0 250 350" xml:space="preserve">
            <g id="niteSky">
 
-             <linearGradient id="grayyyy" gradientUnits="userSpaceOnUse" x1="123.6147" y1="282.6143" x2="126.2841" y2="79.7452">
+             <linearGradient id="grayyyy_linear" gradientUnits="userSpaceOnUse" x1="123.6147" y1="282.6143" x2="126.2841" y2="79.7452">
                <stop  offset="0" style="stop-color:#CCCECF"/>
                <stop  offset="1" style="stop-color:#919394"/>
              </linearGradient>
