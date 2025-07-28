@@ -16,16 +16,40 @@ defmodule Hangman2Web.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    # plug :fetch_session
+    # plug :protect_from_forgery
   end
+
+  # scope "/api", Hangman2Web do
+  #   pipe_through :api
+  #   post "/user_left", UserLeaveController, :remove
+  # end
 
   scope "/", Hangman2Web do
     pipe_through :browser
 
     get "/", PageController, :home
 
-    live "/hangman", Live.Game
-    live "/connect_four", Live.ConnectFour.Game
+    # live "/hangman", Live.Game
+    # live "/connect_four", Live.ConnectFour.Game
+    # live "/connect_four/game/:game_id", Live.ConnectFour.Play
   end
+
+  scope "/", Hangman2Web do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live_session :require_authenticated_user,
+      on_mount: [{Hangman2Web.UserAuth, :ensure_authenticated}] do
+      live "/users/settings", UserSettingsLive, :edit
+      live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+
+      live "/hangman", Live.Game
+      live "/connect_four", Live.ConnectFour.Game
+      live "/connect_four/game/:game_id", Live.ConnectFour.Play
+
+      end
+  end
+
 
   # Other scopes may use custom stacks.
   # scope "/api", Hangman2Web do
@@ -65,15 +89,15 @@ defmodule Hangman2Web.Router do
     post "/users/log_in", UserSessionController, :create
   end
 
-  scope "/", Hangman2Web do
-    pipe_through [:browser, :require_authenticated_user]
+  # scope "/", Hangman2Web do
+  #   pipe_through [:browser, :require_authenticated_user]
 
-    live_session :require_authenticated_user,
-      on_mount: [{Hangman2Web.UserAuth, :ensure_authenticated}] do
-      live "/users/settings", UserSettingsLive, :edit
-      live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
-    end
-  end
+  #   live_session :require_authenticated_user,
+  #     on_mount: [{Hangman2Web.UserAuth, :ensure_authenticated}] do
+  #     live "/users/settings", UserSettingsLive, :edit
+  #     live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+  #   end
+  # end
 
   scope "/", Hangman2Web do
     pipe_through [:browser]

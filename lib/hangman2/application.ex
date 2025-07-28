@@ -18,7 +18,8 @@ defmodule Hangman2.Application do
       # {Hangman2.Worker, arg},
       # Start to serve requests, typically the last entry
       Hangman2Web.Presence,
-      Hangman2Web.Endpoint
+      Hangman2Web.Endpoint,
+      {Hangman2Web.Live.ConnectFour.Invites, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

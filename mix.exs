@@ -4,7 +4,7 @@ defmodule Hangman2.MixProject do
   def project do
     [
       app: :hangman2,
-      version: "0.1.2",
+      version: "0.1.3",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -59,6 +59,7 @@ defmodule Hangman2.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
+      {:uuid, "~> 1.1"},
 
       {:hangman, git: "https://github.com/tbattur22/hangman.git"},
       {:connect_four, git: "https://github.com/tbattur22/connect_four.git"},
