@@ -113,4 +113,6 @@ if config_env() == :prod do
   #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+  config :hangman2, Hangman2.Mailer,
+  adapter: Swoosh.Adapters.Test
 end
