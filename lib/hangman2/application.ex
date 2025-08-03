@@ -14,6 +14,7 @@ defmodule Hangman2.Application do
       {Phoenix.PubSub, name: Hangman2.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Hangman2.Finch},
+      {Cachex, [:my_cache]},
       # Start a worker by calling: Hangman2.Worker.start_link(arg)
       # {Hangman2.Worker, arg},
       # Start to serve requests, typically the last entry

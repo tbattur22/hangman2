@@ -61,6 +61,25 @@ defmodule Hangman2.Accounts do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  @doc """
+  Returns user from cache if available or get it and sets the cache
+  """
+  def get_user_cached(user_id) do
+    case Cachex.get(:my_cache, user_id) do
+      {:ok, nil} ->
+        if user = Repo.get(User, user_id) do
+          Cachex.put(:my_cache, user_id, user, expire_in: :timer.hours(1)) # Cache for 1 hour
+          user
+        else
+          Logger.warning("get_user_cached(#{user_id}): Repo.get() could not get user, returning nil")
+          nil
+        end
+
+      {:ok, user} ->
+        user
+    end
+  end
+
   ## User registration
 
   @doc """

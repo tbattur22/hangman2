@@ -4,7 +4,6 @@ alias Hangman2Web.Live.ConnectFour.Invites
   require Logger
   alias Hangman2.Accounts
   alias Hangman2.PubSub
-  alias Hangman2Web.Presence
   alias Phoenix.Socket.Broadcast
 
   @presence_topic "game:lobby" # Define the topic
@@ -31,8 +30,8 @@ alias Hangman2Web.Live.ConnectFour.Invites
       case ConnectFour.game_state(game_id) do
         {:ok, game} ->
           Logger.info("Play:connected:game_state #{inspect(game)}")
-          red_user = Accounts.get_user!(game.players.red)
-          yellow_user = Accounts.get_user!(game.players.yellow)
+          red_user = Accounts.get_user_cached(game.players.red)
+          yellow_user = Accounts.get_user_cached(game.players.yellow)
 
          {:ok,
            assign(socket,
@@ -58,7 +57,7 @@ alias Hangman2Web.Live.ConnectFour.Invites
   end
 
   @impl true
-  def render(%{current_user: current_user, game: game, board: _board} = assigns) do
+  def render(%{current_user: current_user, game: game, board: board} = assigns) do
     can_move? = current_user.id == ConnectFour.Impl.Game.get_uid_by_player(game.players, game.current_player)
     assigns = Map.put(assigns, :can_move?, can_move?)
 
@@ -133,7 +132,8 @@ alias Hangman2Web.Live.ConnectFour.Invites
 
                 <% cell = Enum.at(Enum.at(@board, col_index), row_index) %>
                   <% is_top_row = row_index == 5 %>
-                  <% is_clickable = is_top_row and @can_move? %>
+                  <% top_cell_empty = column_top_cell_empty?(col_index, board) %>
+                  <% is_clickable = is_top_row and @can_move? and top_cell_empty %>
                   <% drop_hint_class = if is_clickable, do: "hover:ring-2 hover:ring-blue-400 hover:bg-blue-100 cursor-pointer", else: "" %>
 
                   <div
@@ -176,7 +176,7 @@ alias Hangman2Web.Live.ConnectFour.Invites
     {:noreply, push_navigate(socket, to: ~p"/connect_four/game/#{game_id}")}
   end
   @impl true
-  def handle_info(%Broadcast{topic: @game_play_topic = topic, event: @game_restart_event, payload:  %{game_id: _game_id}} = _event, socket), do: {:noreply, socket}
+  def handle_info(%Broadcast{topic: @game_play_topic = _topic, event: @game_restart_event, payload:  %{game_id: _game_id}} = _event, socket), do: {:noreply, socket}
 
 
   def handle_info(%Broadcast{topic: @game_play_topic = topic, event: @game_exit_event, payload:  %{game_id: game_id, flash_msg: flash_msg}} = _event, socket) when game_id == socket.assigns.game_id do
@@ -188,7 +188,7 @@ alias Hangman2Web.Live.ConnectFour.Invites
       |> push_navigate(to: ~p"/connect_four")
     }
   end
-  def handle_info(%Broadcast{topic: @game_play_topic = topic, event: @game_exit_event, payload:  %{game_id: _game_id, flash_msg: _flash_msg}} = _event, socket), do: {:noreply, socket}
+  def handle_info(%Broadcast{topic: @game_play_topic = _topic, event: @game_exit_event, payload:  %{game_id: _game_id, flash_msg: _flash_msg}} = _event, socket), do: {:noreply, socket}
 
   def handle_info(%Broadcast{event: "presence_diff", payload: %{joins: _joins, leaves: _leaves}} = _event, socket) do
     # Logger.debug("Play:Presence_diff event:current_user:#{socket.assigns.current_user.id}, pid: #{inspect(self())} joins:#{inspect(joins)}, leaves: #{inspect(leaves)}")
@@ -309,4 +309,10 @@ alias Hangman2Web.Live.ConnectFour.Invites
     })
   end
 
+  defp column_top_cell_empty?(col, board) when col in 0..6 do
+    board
+    |> Enum.at(col)
+    |> List.last()
+    |> is_nil()
+  end
 end

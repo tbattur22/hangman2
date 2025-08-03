@@ -60,6 +60,7 @@ defmodule Hangman2.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:uuid, "~> 1.1"},
+      {:cachex, "~> 4.0"},
 
       {:hangman, git: "https://github.com/tbattur22/hangman.git"},
       {:connect_four, git: "https://github.com/tbattur22/connect_four.git"},

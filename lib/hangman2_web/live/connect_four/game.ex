@@ -11,7 +11,6 @@ defmodule Hangman2Web.Live.ConnectFour.Game do
   @presence_topic "game:lobby" # Define the topic
   @game_invite_topic "game:invite"
   @update_ui_state_event "update_ui_state"
-  @game_join_event "pending_join"
 
 @impl true
 def mount(_params, session, socket) do
@@ -72,7 +71,7 @@ end
       available_users =
         available_user_ids
         |> Enum.filter(fn uid -> uid != to_string(socket.assigns.current_user.id) end)
-        |> Enum.map(fn user_id -> normalizeUser(Accounts.get_user!(user_id)) end)
+        |> Enum.map(fn user_id -> normalizeUser(Accounts.get_user_cached(user_id)) end)
 
     # Logger.info("handle_info: current_user id: #{socket.assigns.current_user.id}, new available_users: #{inspect(available_users)}")
     updated_socket =
@@ -98,7 +97,7 @@ end
 
 
   @impl true
-  def handle_info(%Broadcast{event: "presence_diff", payload: %{joins: joins, leaves: leaves}} = _event, socket) do
+  def handle_info(%Broadcast{event: "presence_diff", payload: %{joins: _joins, leaves: _leaves}} = _event, socket) do
     # Logger.debug("Presence_diff event:current_user:#{socket.assigns.current_user.id}, pid: #{inspect(self())} joins:#{inspect(joins)}, leaves: #{inspect(leaves)} and \n --waitingForInvitee: #{inspect(socket.assigns.waitingForInvitee)} and
     # \n --inviterWaitingForMe: #{inspect(socket.assigns.inviterWaitingForMe)} ")
 
@@ -258,7 +257,7 @@ end
     %{pending: pending, accepted: _accepted} = Invites.get_state()
     case Map.fetch(pending, Integer.to_string(socket.assigns.current_user.id)) do
       {:ok, [uid]} ->
-          normalizeUser(Accounts.get_user!(uid))
+          normalizeUser(Accounts.get_user_cached(uid))
       :error -> nil
     end
   end
@@ -268,7 +267,7 @@ end
     pending
     |> Enum.find(fn {_key, list} -> to_string(socket.assigns.current_user.id) in list end)
     |> case do
-      {uid, _} -> normalizeUser(Accounts.get_user!(uid))
+      {uid, _} -> normalizeUser(Accounts.get_user_cached(uid))
       nil -> nil  # not found
     end
   end
@@ -288,27 +287,9 @@ end
     })
   end
 
-  # defp sendJoinToGameInvite(game_id) do
-  #   Phoenix.PubSub.broadcast_from!(PubSub, self(), @game_invite_topic, %Broadcast{
-  #     topic: @game_invite_topic,
-  #     event: @game_join_event,
-  #     payload: %{game_id: game_id}
-  #   })
-  # end
-
-  def shouldSwitchToPlayRoute(%{accepted: accepted} = invites_state, socket) do
+  def shouldSwitchToPlayRoute(%{accepted: accepted} = _invites_state, socket) do
     Enum.find(accepted, fn {{u1, u2}, game_id} -> to_string(socket.assigns.current_user.id) in [u1,u2] and game_id != nil end)
   end
-
-  # defp shouldResetWaitingFlags?(_leaves, nil, nil), do: false
-  # defp shouldResetWaitingFlags?(leaves, nil, %{id: user_id} = _inviterWaitingForMe) do
-  #   # if inviter left connect_four lobby need to reset waiting flags
-  #   Map.has_key?(leaves, Integer.to_string(user_id))
-  # end
-  # defp shouldResetWaitingFlags?(leaves, %{id: user_id} = _waitingForInvitee, nil) do
-  #   # if invitee left connect_four lobby need to reset waiting flags
-  #   Map.has_key?(leaves, Integer.to_string(user_id))
-  # end
 
   defp normalizeUser(%Hangman2.Accounts.User{} = user) do
     Map.delete(Map.from_struct(user), :__meta__)

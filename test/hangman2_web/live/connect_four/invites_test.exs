@@ -89,10 +89,7 @@ defmodule HangmanWeb.Live.ConnectFour.InvitesTest do
     test "get_available_users_to_invite works correctly" do
       u1 = "3"
       u2 = "2"
-      u3 = "4"
-      u4 = "6"
       game_id = "game-12345678"
-      game_id2 = "game-12345678910"
 
       presence = %{
         "2" => %{metas: [%{user_id: 2, phx_ref: "GFYwFqYap2gB7itF", user_name: "Nyamka"}]},
